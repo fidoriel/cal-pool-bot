@@ -119,6 +119,7 @@ class PoolTelegramBot:
     @staticmethod
     def _format_open_now(openings: list[PoolOpening]) -> str:
         now = datetime.now(BERKELEY_TIMEZONE).replace(second=0, microsecond=0)
+        timestamp = now.strftime("%Y-%m-%d %H:%M %Z")
         open_now = sorted(
             (
                 opening
@@ -129,14 +130,14 @@ class PoolTelegramBot:
             key=lambda opening: datetime.strptime(opening.opening, "%H:%M").time(),
         )
         if not open_now:
-            return "No pool is open right now."
+            return f"Open now (Berkeley time: {timestamp}):\nNo pool is open right now."
 
         lines = [
             f"{opening.pool}: {opening.opening}-{opening.closing} "
             f"({PoolTelegramBot._remaining(opening, now)} remaining)"
             for opening in open_now
         ]
-        return "Open now:\n" + "\n".join(lines)
+        return f"Open now (Berkeley time: {timestamp}):\n" + "\n".join(lines)
 
     @staticmethod
     def _contains_time(opening: PoolOpening, current: time) -> bool:
