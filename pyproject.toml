@@ -1,0 +1,21 @@
+[project]
+name = "cal-pool-bot"
+version = "0.1.0"
+description = "Telegram bot for UC Berkeley RecWell pool opening hours"
+requires-python = ">=3.12"
+dependencies = [
+    "aiogram>=3.13,<4",
+    "beautifulsoup4>=4.12,<5",
+    "pydantic-settings>=2.6,<3",
+    "requests>=2.31,<3",
+]
+
+[project.scripts]
+cal-pool-bot = "cal_pool_bot.bot:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
