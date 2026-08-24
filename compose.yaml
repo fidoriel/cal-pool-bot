@@ -1,0 +1,11 @@
+services:
+  cal_pool_bot:
+    build:
+      context: .
+      platforms:
+        - linux/arm64
+    image: cal_pool_bot:arm64
+    platform: linux/arm64
+    env_file:
+      - .env
+    restart: unless-stopped
