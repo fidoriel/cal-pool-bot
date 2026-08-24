@@ -20,8 +20,8 @@ uv run cal-pool-bot
 
 Send `/start` to `@cal_pool_bot` in Telegram. It provides buttons for `Open
 now`, `Today`, `Tomorrow`, and `This week`, plus a link to this repository.
-Opening-time ranges include their total duration as `HH:MM`; closed or
-unavailable pools are omitted.
+Closed or unavailable pools are omitted. The `Open now` view shows the
+remaining time until closing.
 
 ## Docker
 

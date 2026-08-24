@@ -101,15 +101,12 @@ class PoolTelegramBot:
             if opening.date != current_date:
                 current_date = opening.date
                 lines.append(f"\n{opening.date:%A, %d.%m.%Y}")
-            lines.append(
-                f"{opening.pool}: {opening.opening}-{opening.closing} "
-                f"({PoolTelegramBot._duration(opening.opening, opening.closing)})"
-            )
+            lines.append(f"{opening.pool}: {opening.opening}-{opening.closing}")
         return "Opening hours:\n" + "\n".join(lines).strip()
 
     @staticmethod
     def _format_open_now(openings: list[PoolOpening]) -> str:
-        now = datetime.now(BERKELEY_TIMEZONE)
+        now = datetime.now(BERKELEY_TIMEZONE).replace(second=0, microsecond=0)
         open_now = [
             opening
             for opening in openings
@@ -121,7 +118,7 @@ class PoolTelegramBot:
 
         lines = [
             f"{opening.pool}: {opening.opening}-{opening.closing} "
-            f"({PoolTelegramBot._duration(opening.opening, opening.closing)})"
+            f"({PoolTelegramBot._remaining(opening, now)} remaining)"
             for opening in open_now
         ]
         return "Open now:\n" + "\n".join(lines)
@@ -137,16 +134,13 @@ class PoolTelegramBot:
         return opening_time <= current < closing_time
 
     @staticmethod
-    def _duration(opening: str | None, closing: str | None) -> str:
-        if opening is None or closing is None:
-            return "00:00"
-        start = datetime.strptime(opening, "%H:%M")
-        end = datetime.strptime(closing, "%H:%M")
-        if end < start:
-            end += timedelta(days=1)
-        duration = end - start
-        total_minutes = int(duration.total_seconds() // 60)
-        return f"{total_minutes // 60:02d}:{total_minutes % 60:02d}"
+    def _remaining(opening: PoolOpening, now: datetime) -> str:
+        closing = datetime.strptime(opening.closing or "00:00", "%H:%M").time()
+        closing_at = datetime.combine(now.date(), closing, tzinfo=now.tzinfo)
+        if closing_at <= now:
+            closing_at += timedelta(days=1)
+        remaining_minutes = max(0, int((closing_at - now).total_seconds() // 60))
+        return f"{remaining_minutes // 60:02d}:{remaining_minutes % 60:02d}"
 
 
 def main() -> None:
