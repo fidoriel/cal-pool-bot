@@ -91,7 +91,19 @@ class PoolTelegramBot:
 
     @staticmethod
     def _format_openings(openings: list[PoolOpening], selected_dates: set[date]) -> str:
-        matching = [opening for opening in openings if opening.date in selected_dates]
+        matching = sorted(
+            (
+                opening
+                for opening in openings
+                if opening.date in selected_dates
+                and opening.opening is not None
+                and opening.closing is not None
+            ),
+            key=lambda opening: (
+                opening.date,
+                datetime.strptime(opening.opening, "%H:%M").time(),
+            ),
+        )
         if not matching:
             return "No opening hours are available for this period."
 
@@ -107,12 +119,15 @@ class PoolTelegramBot:
     @staticmethod
     def _format_open_now(openings: list[PoolOpening]) -> str:
         now = datetime.now(BERKELEY_TIMEZONE).replace(second=0, microsecond=0)
-        open_now = [
-            opening
-            for opening in openings
-            if opening.date == now.date()
-            and PoolTelegramBot._contains_time(opening, now.time())
-        ]
+        open_now = sorted(
+            (
+                opening
+                for opening in openings
+                if opening.date == now.date()
+                and PoolTelegramBot._contains_time(opening, now.time())
+            ),
+            key=lambda opening: datetime.strptime(opening.opening, "%H:%M").time(),
+        )
         if not open_now:
             return "No pool is open right now."
 
